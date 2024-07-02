@@ -13,9 +13,16 @@ function App() {
         if (pace && distanceValue && !isNaN(distanceValue)) {
             const paceParts = pace.split('.');
             const paceMinutes = parseInt(paceParts[0]);
-            const paceSeconds = parseInt(paceParts[1]);
+            const paceDecimal = parseInt(paceParts[1]);
 
-            if (!isNaN(paceMinutes) && !isNaN(paceSeconds)) {
+            if (!isNaN(paceMinutes) && !isNaN(paceDecimal) && paceDecimal >= 0 && paceDecimal < 100) {
+                let paceSeconds = Math.round((paceDecimal / 100) * 60);
+
+                if (paceSeconds === 60) {
+                    paceMinutes += 1;
+                    paceSeconds = 0;
+                }
+
                 const totalPaceSeconds = paceMinutes * 60 + paceSeconds;
 
                 const totalSeconds = totalPaceSeconds * distanceValue;
@@ -23,9 +30,9 @@ function App() {
                 const minutes = Math.floor((totalSeconds % 3600) / 60);
                 const seconds = Math.floor(totalSeconds % 60);
 
-                setResult(`เวลาที่ใช้: ${hours} ชั่วโมง ${minutes} นาที ${seconds} วินาที`);
+                setResult(`Time: ${hours} hours ${minutes} minutes ${seconds} seconds`);
             } else {
-                setResult('Pace ไม่ถูกต้อง');
+                setResult('Invalid pace. Decimal part should be between 0 and 99.');
             }
         } else if (time && distanceValue && !isNaN(distanceValue)) {
             const timeParts = time.split('.');
@@ -40,16 +47,23 @@ function App() {
                 const paceMinutes = Math.floor(totalPaceSeconds / 60);
                 const paceSeconds = Math.floor(totalPaceSeconds % 60);
 
-                setResult(`Pace: ${paceMinutes} นาที ${paceSeconds} วินาที/กม.`);
+                setResult(`Pace: ${paceMinutes} minutes ${paceSeconds} seconds/km`);
             } else {
-                setResult('เวลาไม่ถูกต้อง');
+                setResult('Invalid time');
             }
         } else if (time && pace) {
             const paceParts = pace.split('.');
             const paceMinutes = parseInt(paceParts[0]);
-            const paceSeconds = parseInt(paceParts[1]);
+            const paceDecimal = parseInt(paceParts[1]);
 
-            if (!isNaN(paceMinutes) && !isNaN(paceSeconds)) {
+            if (!isNaN(paceMinutes) && !isNaN(paceDecimal) && paceDecimal >= 0 && paceDecimal < 100) {
+                let paceSeconds = Math.round((paceDecimal / 100) * 60);
+
+                if (paceSeconds === 60) {
+                    paceMinutes += 1;
+                    paceSeconds = 0;
+                }
+
                 const totalPaceSeconds = paceMinutes * 60 + paceSeconds;
 
                 const timeParts = time.split('.');
@@ -62,23 +76,23 @@ function App() {
 
                     const distanceValue = totalTimeSeconds / totalPaceSeconds;
 
-                    setResult(`ระยะทาง: ${distanceValue.toFixed(2)} กม.`);
+                    setResult(`Distance: ${distanceValue.toFixed(2)} km`);
                 } else {
-                    setResult('เวลาไม่ถูกต้อง');
+                    setResult('Invalid time');
                 }
             } else {
-                setResult('Pace ไม่ถูกต้อง');
+                setResult('Invalid pace. Decimal part should be between 0 and 99.');
             }
         } else {
-            setResult('กรุณากรอกข้อมูลให้ครบถ้วน');
+            setResult('Please fill in all fields');
         }
     };
 
     return (
         <div className="container">
-            <h1>เครื่องคำนวณการวิ่ง</h1>
+            <h1>Running Calculator</h1>
             <form onSubmit={(e) => e.preventDefault()}>
-                <label htmlFor="distance">ระยะทาง (กม.):</label>
+                <label htmlFor="distance">Distance (km):</label>
                 <input
                     type="number"
                     id="distance"
@@ -88,7 +102,7 @@ function App() {
                     onChange={(e) => setDistance(e.target.value)}
                 />
 
-                <label htmlFor="pace">Pace (นาที.วินาที/กม.):</label>
+                <label htmlFor="pace">Pace (minutes.seconds/km):</label>
                 <input
                     type="text"
                     id="pace"
@@ -98,7 +112,7 @@ function App() {
                     onChange={(e) => setPace(e.target.value)}
                 />
 
-                <label htmlFor="time">เวลา (ชั่วโมง.นาที.วินาที):</label>
+                <label htmlFor="time">Time (hours.minutes.seconds):</label>
                 <input
                     type="text"
                     id="time"
@@ -108,7 +122,7 @@ function App() {
                     onChange={(e) => setTime(e.target.value)}
                 />
 
-                <button type="button" onClick={calculate}>คำนวณ</button>
+                <button type="button" onClick={calculate}>Calculate</button>
             </form>
             <div id="result">{result}</div>
         </div>
